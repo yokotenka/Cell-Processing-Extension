@@ -1,12 +1,4 @@
-package com.Kenta;
-
-import javafx.scene.chart.Chart;
-import qupath.lib.objects.PathObject;
-
-import java.util.Collection;
-import java.util.HashMap;
-
-
+package com.wehi;
 
 
 public abstract interface Thresholder {

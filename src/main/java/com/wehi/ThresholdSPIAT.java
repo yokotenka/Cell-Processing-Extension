@@ -1,12 +1,9 @@
-package com.Kenta;
+package com.wehi;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import qupath.lib.objects.PathObject;
-import qupath.lib.objects.classes.PathClassFactory;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class ThresholdSPIAT implements Thresholder{
 

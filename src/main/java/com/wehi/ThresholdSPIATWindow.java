@@ -1,4 +1,4 @@
-package com.Kenta;
+package com.wehi;
 
 
 // Imports
@@ -8,7 +8,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.NumberAxis;
@@ -17,13 +16,11 @@ import javafx.scene.chart.XYChart.Series;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import org.slf4j.Marker;
 import qupath.lib.classifiers.object.ObjectClassifier;
 import qupath.lib.classifiers.object.ObjectClassifiers;
 import qupath.lib.classifiers.object.ObjectClassifiers.ClassifyByMeasurementBuilder;

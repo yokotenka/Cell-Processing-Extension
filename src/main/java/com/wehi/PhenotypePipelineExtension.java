@@ -1,4 +1,4 @@
-package com.Kenta;
+package com.wehi;
 
 import org.controlsfx.control.action.Action;
 import qupath.lib.gui.ActionTools;

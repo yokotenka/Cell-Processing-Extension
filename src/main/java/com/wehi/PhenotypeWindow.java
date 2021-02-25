@@ -1,4 +1,4 @@
-package com.Kenta;
+package com.wehi;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -31,32 +31,52 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
+/**
+ * Class for the phenotype graphical interface. Phenotypes cells based on composite classifier obtained by one of the
+ * threshold methods.
+ */
 public class PhenotypeWindow extends AbstractWindow implements Runnable, ChangeListener<ImageData<BufferedImage>> {
-
+    // Phenotype options table
     private TableCreator<PhenotypeTableEntry> phenotypeTable;
+    // List of phenotypes
     private ObservableList<PhenotypeTableEntry> phenotypeList = FXCollections.observableArrayList();
+    // Table displaying results
     private TableCreator<PhenotypeTableEntry> resultsTable;
-
-    private VBox mainVBox;
-    private Stage stage;
-    private String title = "Phenotype";
-
-
-    private QuPathGUI qupath;
-    private Collection<PathObject> cells;
-    private ImageData<BufferedImage> imageData;
-    private ImageServer<BufferedImage> server;
-//    private QuPathViewer viewer;
-
-    private ObservableList<String> markers;
+    // Button which will add a phenotype to the options table
     private Button addPhenotype;
+    // Button which will remove a selected phenotype from the options table
     private Button removePhenotype;
+    // ComboBox to select the classifier to use
     private ComboBox<String> compositeClassifierBox;
+    // ComboBox to select the previously saved options
     private ComboBox<String> fileNameOptions;
+
+    // Folder name of where the options will be saved
     private File folderName;
 
+    // Main pane of the window
+    private VBox mainVBox;
+    // The window
+    private Stage stage;
+    // The title of the Window
+    private String title = "Phenotype";
+
+    // The current qupath instance
+    private QuPathGUI qupath;
+    // The cells which need classifying
+    private Collection<PathObject> cells;
+    // Current image data
+    private ImageData<BufferedImage> imageData;
+
+    // Markers which are present in the current classifier
+    private ObservableList<String> markers;
+    // Hashmap to keep track of the results after switching images
     private HashMap<String, ObservableList<PhenotypeTableEntry>> resultsMap = new HashMap<>();
 
+    /**
+     * Constructor
+     * @param qupath the current instance of qupath
+     */
     public PhenotypeWindow(QuPathGUI qupath){
         this.qupath = qupath;
     }
@@ -65,8 +85,6 @@ public class PhenotypeWindow extends AbstractWindow implements Runnable, ChangeL
     @Override
     public void run() {
 
-        // Need to add in way to check for opened windows
-//
         var viewer = qupath.getViewer();
 
         if (viewer == null){
@@ -87,6 +105,7 @@ public class PhenotypeWindow extends AbstractWindow implements Runnable, ChangeL
             return;
         }
 
+        // Only have one instance of the window open
         if (stage == null) {
             try {
                 stage = createDialog();
@@ -98,18 +117,46 @@ public class PhenotypeWindow extends AbstractWindow implements Runnable, ChangeL
     }
 
 
-
+    /**
+     * Creates Stage which will be displayed
+     * @return stage to be displayed
+     * @throws IOException could be thrown when opening options.
+     */
     public Stage createDialog() throws IOException {
+        // Initialise stage
         stage = new Stage();
-        qupath.getViewer().imageDataProperty().addListener(this);
-        ObservableList<String> channels = FXCollections.observableArrayList(qupath.getProject().getObjectClassifiers().getNames());
 
+        // Main Pane of the window
+        mainVBox = new VBox();
+        mainVBox.setFillWidth(true);
+        mainVBox.setSpacing(5);
+        mainVBox.setPadding(new Insets(10, 10, 10, 10));
+
+        // Change title to match current image
+        updateTitle();
+        // Change qupath data to match the current image
+        updateQuPath();
+
+        // Get the project
+        var project = qupath.getProject();
+
+
+        // Add listener to the image data so that the window updates when image data changes
+        qupath.getViewer().imageDataProperty().addListener(this);
+
+        /* The available classifiers
+         * - could add in listener so that the channel list updates. Bit extra but might need it if going back
+         *  between threshold and phenotype
+         */
+        ObservableList<String> channels = FXCollections.observableArrayList(
+                                                        qupath.getProject().getObjectClassifiers().getNames());
+
+        // The available markers
         markers = FXCollections.observableArrayList();
 
+        // The initial phenotypes in the options table
         PhenotypeTableEntry phenotypeOptions1 = new PhenotypeTableEntry(markers);
         PhenotypeTableEntry phenotypeOptions2 = new PhenotypeTableEntry(markers);
-
-
         phenotypeList.add(phenotypeOptions1);
         phenotypeList.add(phenotypeOptions2);
 
@@ -122,54 +169,48 @@ public class PhenotypeWindow extends AbstractWindow implements Runnable, ChangeL
         phenotypeTable.addColumn("Negative Markers", "negativeMarkers", 0.45);
 
 
-        // ******************* Button
-        addPhenotype = new Button("+");
-        removePhenotype = new Button("-");
-
-        addPhenotype.setOnAction((event) -> {
-            PhenotypeTableEntry newPhenotype = new PhenotypeTableEntry(markers);
-            phenotypeList.add(newPhenotype);
-            phenotypeTable.setItems(phenotypeList);
-        });
-
-        removePhenotype.setOnAction((event) ->{
-            PhenotypeTableEntry toBeRemoved = phenotypeTable.removeRow();
-
-            if (toBeRemoved !=null) {
-                phenotypeList.remove(toBeRemoved);
-            }
-        });
-
-
-        mainVBox = new VBox();
-        mainVBox.setFillWidth(true);
-        mainVBox.setSpacing(5);
-
-
+        // *************** Load classifiers ***************
         Label chooseClassifierLabel = createLabel("Load a composite classifier      ");
         compositeClassifierBox = new ComboBox<>(channels);
 
-        var project = qupath.getProject();
-
+        // Refresh the markers in the table
         compositeClassifierBox.setOnAction((event) -> {
             updateMarkers();
             for (PhenotypeTableEntry entry : phenotypeList) entry.updateMarkers(markers);
         });
 
-        updateTitle();
-        updateQuPath();
-
-
         HBox titlePane = new HBox();
         titlePane.getChildren().addAll(chooseClassifierLabel, compositeClassifierBox);
 
-
+        // *************** Load options ***************
         Label loadLabel = createLabel("Load previously saved options (can be ignored)       ");
         fileNameOptions = new ComboBox<>();
         updateAvailableClassifiers();
 
         Button loadButton = new Button("Load Options");
+        loadButton.setOnAction((event) -> {
+            if (fileNameOptions.getValue() != null) {
 
+                try {
+                    FileReader file = new FileReader(new File(folderName, fileNameOptions.getValue()));
+                    Gson gson = new Gson();
+                    PhenotypeOptions[] options = gson.fromJson(file, PhenotypeOptions[].class);
+
+                    compositeClassifierBox.setValue(options[0].getClassifierName());
+                    updateMarkers();
+
+                    phenotypeList = FXCollections.observableArrayList();
+                    for (PhenotypeOptions option : options) {
+                        if (!option.getName().equals("Undefined")) {
+                            phenotypeList.add(new PhenotypeTableEntry(option, markers));
+                        }
+                    }
+                    phenotypeTable.setItems(phenotypeList);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         GridPane headerPane = new GridPane();
         headerPane.add(chooseClassifierLabel, 0 ,0, 1, 1);
@@ -186,30 +227,25 @@ public class PhenotypeWindow extends AbstractWindow implements Runnable, ChangeL
         mainVBox.getChildren().add(phenotypeTable.getTable());
 
 
-        // ***************************** Load Options *****************************
-        loadButton.setOnAction((event) -> {
-            if (fileNameOptions.getValue() != null) {
+        // ******************* Add Remove Phenotypes *******************
+        addPhenotype = new Button("+");
+        removePhenotype = new Button("-");
 
-                try {
-                    FileReader file = new FileReader(new File(folderName, fileNameOptions.getValue()));
-                    Gson gson = new Gson();
-                    PhenotypeOptions[] options = gson.fromJson(file, PhenotypeOptions[].class);
-
-                    compositeClassifierBox.setValue(options[0].getClassifierName());
-                    updateMarkers();
-
-                    phenotypeList = FXCollections.observableArrayList();
-                    for (PhenotypeOptions option : options) {
-                        phenotypeList.add(new PhenotypeTableEntry(option, markers));
-                    }
-                    phenotypeTable.setItems(phenotypeList);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+        // Update the table and phenotype list
+        addPhenotype.setOnAction((event) -> {
+            PhenotypeTableEntry newPhenotype = new PhenotypeTableEntry(markers);
+            phenotypeList.add(newPhenotype);
+            phenotypeTable.setItems(phenotypeList);
         });
 
+        // Update the table and phenotype list
+        removePhenotype.setOnAction((event) ->{
+            PhenotypeTableEntry toBeRemoved = phenotypeTable.removeRow();
 
+            if (toBeRemoved !=null) {
+                phenotypeList.remove(toBeRemoved);
+            }
+        });
 
         Label addRemoveLabel = createLabel("Add/Remove Phenotypes     ");
         HBox pane = new HBox();
@@ -217,15 +253,12 @@ public class PhenotypeWindow extends AbstractWindow implements Runnable, ChangeL
         pane.setAlignment(Pos.CENTER_RIGHT);
 
 
-
+        // ***************** Save Options ********************
         Label saveLabel = createLabel("Save table of options    ");
         TextField saveTextField = new TextField();
         Button saveButton = new Button("Save Options");
 
         HBox saveHBox = new HBox(saveLabel, saveTextField, saveButton);
-
-
-
         saveButton.setOnAction((event) -> {
             try  {
                 File fileName = new File(folderName, saveTextField.getText());
@@ -242,7 +275,6 @@ public class PhenotypeWindow extends AbstractWindow implements Runnable, ChangeL
                     );
                 }
 
-
                 gson.toJson(options, writer);
                 Dialogs.showInfoNotification(title, "Saved options at " + fileName.toString());
                 writer.flush();
@@ -254,18 +286,14 @@ public class PhenotypeWindow extends AbstractWindow implements Runnable, ChangeL
             updateAvailableClassifiers();
         });
 
-
         HBox justBelowTable = new HBox(saveHBox,pane);
         justBelowTable.setSpacing(40);
         mainVBox.getChildren().add(justBelowTable);
 
-
-
+        // ***************************** Run Phenotype *****************************
         Button runButton = new Button("Run");
         mainVBox.getChildren().add(runButton);
 
-
-        // ***************************** Run Phenotype *****************************
         runButton.setOnAction((event) -> {
             if (cells ==null){
                 Dialogs.showErrorMessage(title, "No cells detected!");
@@ -285,7 +313,7 @@ public class PhenotypeWindow extends AbstractWindow implements Runnable, ChangeL
             undefined.setPhenotypeName("Undefined");
             PhenotypeDecider decider = new PhenotypeDecider(cells, phenotypeList, undefined);
             decider.decide();
-
+            phenotypeList.add(undefined);
             resultsTable.setItems(phenotypeList);
             resultsTable.getTable().refresh();
             resultsMap.put(imageData.getServerPath(), phenotypeList);
@@ -293,16 +321,15 @@ public class PhenotypeWindow extends AbstractWindow implements Runnable, ChangeL
 
         Separator sep = new Separator();
         mainVBox.getChildren().add(sep);
-
         resultsTable = new TableCreator<>();
         resultsTable.addColumn("Phenotype", "phenotypeName",0.1);
         resultsTable.addColumn("Count", "count",0.1);
         resultsTable.addColumn("Positive Markers", "positiveMarkerString", 0.4);
         resultsTable.addColumn("Negative Markers", "negativeMarkerString", 0.4);
-
         mainVBox.getChildren().add(resultsTable.getTable());
 
 
+        // ***************************** Save results table *****************************
         Label saveTableLabel = createLabel("Table name  ");
         TextField saveTableTextField = new TextField();
         Button chooseTableButton = new Button("Choose");
@@ -315,7 +342,6 @@ public class PhenotypeWindow extends AbstractWindow implements Runnable, ChangeL
                 Dialogs.showErrorMessage(title, "Nothing to save");
                 return;
             }
-
             String ext = ".csv";
             String defaultName = "Phenotype_Count";
             String extDesc = "CSV (Comma delimited)";
@@ -345,22 +371,19 @@ public class PhenotypeWindow extends AbstractWindow implements Runnable, ChangeL
                 e.printStackTrace();
             }
         });
+
         mainVBox.getChildren().add(saveTableBox);
-
-        mainVBox.setPadding(new Insets(10, 10, 10, 10));
-
         phenotypeTable.getTable().prefWidthProperty().bind(stage.widthProperty());
         resultsTable.getTable().prefWidthProperty().bind(stage.widthProperty());
 
+        // Final settings for the stage
         stage.initOwner(QuPathGUI.getInstance().getStage());
         stage.setScene(new Scene(mainVBox));
-        updateTitle();
         stage.setWidth(850);
         stage.setHeight(500);
 
         return stage;
     }
-
 
 
     // Updates the title of the window
@@ -372,8 +395,8 @@ public class PhenotypeWindow extends AbstractWindow implements Runnable, ChangeL
         }
     }
 
+    // Updates data extracted from qupath
     private void updateQuPath() {
-        server = qupath.getViewer().getServer();
         imageData = qupath.getViewer().getImageData();
         try {
             cells = imageData.getHierarchy().getCellObjects();
@@ -383,8 +406,8 @@ public class PhenotypeWindow extends AbstractWindow implements Runnable, ChangeL
         }
     }
 
-
-    public void updateMarkers(){
+    // Updates marker options depending on the classifier
+    private void updateMarkers(){
         ObjectClassifier<BufferedImage> classifier = null;
         try {
             classifier = qupath.getProject().getObjectClassifiers().get(compositeClassifierBox.getValue());
@@ -402,7 +425,8 @@ public class PhenotypeWindow extends AbstractWindow implements Runnable, ChangeL
     }
 
 
-    public void updateAvailableClassifiers(){
+    // Updates the available phenotype classifiers if one is added.
+    private void updateAvailableClassifiers(){
         folderName = new File(Projects.getBaseDirectory(qupath.getProject()), "Phenotype Options");
 
         if (!folderName.exists()){
@@ -411,6 +435,7 @@ public class PhenotypeWindow extends AbstractWindow implements Runnable, ChangeL
         fileNameOptions.setItems(FXCollections.observableArrayList(folderName.list()));
     }
 
+    // Updates the results table
     public void updateResultsTable(){
         phenotypeList = resultsMap.get(imageData.getServerPath());
         resultsTable.setItems(phenotypeList);
@@ -450,12 +475,26 @@ public class PhenotypeWindow extends AbstractWindow implements Runnable, ChangeL
     }
 
 
+    /**
+     * Class to save options using Gson
+     */
     public static class PhenotypeOptions{
+        // Classifier file name
         private final String classifierName;
+        // name of phenotype
         private final String name;
+        // list of positive markers
         private final ArrayList<String> positiveMarkers;
+        // list of negative markers
         private final ArrayList<String> negativeMarkers;
 
+        /**
+         * Constructor
+         * @param classifierName classifier file name
+         * @param name name of phenotype
+         * @param positiveMarkers list of positive markers
+         * @param negativeMarkers list of negative markers
+         */
         public PhenotypeOptions(String classifierName, String name, ArrayList<String> positiveMarkers, ArrayList<String> negativeMarkers){
             this.classifierName = classifierName;
             this.name = name;
@@ -463,18 +502,34 @@ public class PhenotypeWindow extends AbstractWindow implements Runnable, ChangeL
             this.negativeMarkers = negativeMarkers;
         }
 
+        /**
+         * Getter for classifier file name
+         * @return classifier file name
+         */
         public String getClassifierName(){
             return classifierName;
         }
 
+        /**
+         * Getter for the phenotype name
+         * @return phenotype name
+         */
         public String getName() {
             return name;
         }
 
+        /**
+         * Getter for the negative marker list
+         * @return Array list of negative markers
+         */
         public ArrayList<String> getNegativeMarkers() {
             return negativeMarkers;
         }
 
+        /**
+         * Getter for the positive marker list
+         * @return Array list of positive markers
+         */
         public ArrayList<String> getPositiveMarkers() {
             return positiveMarkers;
         }
