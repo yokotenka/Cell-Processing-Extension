@@ -1,0 +1,30 @@
+plugins {
+    id 'java'
+}
+
+group 'org.labat'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    compile fileTree(dir: '/Users/yokote.k/Documents/Software/QuPath-0.2.3.app/Contents/app/', include: '*.jar')
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class' : ''
+        attributes 'Implementation-Title': 'QuPath Cell Process Extension',
+                'Implementation-Version': '0.0.1'
+    }
+    destinationDirectory = file("$rootDir/output")
+    archiveName 'qupath-cell-process-extension.jar'
+}
