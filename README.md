@@ -28,6 +28,9 @@ SPIAT: https://www.biorxiv.org/content/10.1101/2020.05.28.122614v1
 Nina Tubau's phenotype method: https://github.com/ninatubau/QuPath_scripts/blob/main/scripts/gui_phenotype_add_col.groovy  
 
 ## Potential bugs:
-- NullPointer exception when new project is opened. Please ignore
+
+### SPIAT Threshold
 - when only a small ROI is considered, sometimes it cannot find a threshold and will throw an error. If you encounter this error, try and make the ROI larger. If this doesn't work, deselect the marker which is causing the problem. 
 
+### Phenotype
+- Have not found any yet but probably exists. 
