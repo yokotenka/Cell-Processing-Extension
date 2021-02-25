@@ -1,9 +1,10 @@
 # Cell-Processing-Extension
 
 ## Aim
-A pipeline to phenotype cells by calculating and applying a threshold to the marker intensities within a cell. 
+A pipeline to phenotype cells. Does so by calculating and applying a threshold to the marker intensities within a cell. 
 
 ## How to use
+NOTE: You must run a cell detection on the cells before you can run this pipeline.
 
 ### SPIAT Threshold
 1. On the options table, select the marker you would like to apply the threshold on. 
