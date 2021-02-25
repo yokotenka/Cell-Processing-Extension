@@ -7,7 +7,7 @@ import qupath.lib.gui.extensions.QuPathExtension;
 import qupath.lib.gui.tools.MenuTools;
 
 /**
- * QuPath extension for SPIAT Threshold
+ * QuPath extension for Phenotype
  */
 public class PhenotypePipelineExtension implements QuPathExtension {
 
@@ -29,11 +29,11 @@ public class PhenotypePipelineExtension implements QuPathExtension {
 
     @Override
     public String getName() {
-        return "SPIAT Threshold";
+        return "Phenotype Pipeline";
     }
 
     @Override
     public String getDescription() {
-        return "Implementation of the SPIAT predict_phenotype.R script in groovy";
+        return "Marker Threshold and phenotype";
     }
 }

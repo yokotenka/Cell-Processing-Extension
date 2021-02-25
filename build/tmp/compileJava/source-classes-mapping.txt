@@ -2,8 +2,6 @@ com/Kenta/SPIATMarkerInformation.java
  com.Kenta.SPIATMarkerInformation
 com/Kenta/ProjectClassifierWrapper.java
  com.Kenta.ProjectClassifierWrapper
-com/Kenta/SPIATThresholdExtension.java
- com.Kenta.SPIATThresholdExtension
 com/Kenta/ClassifierWrapper.java
  com.Kenta.ClassifierWrapper
 com/Kenta/ThresholdSPIATWindow.java
@@ -29,5 +27,7 @@ com/Kenta/Thresholder.java
  com.Kenta.Thresholder
 com/Kenta/MarkerTableEntry.java
  com.Kenta.MarkerTableEntry
+com/Kenta/PhenotypePipelineExtension.java
+ com.Kenta.PhenotypePipelineExtension
 com/Kenta/PhenotypeTableEntry.java
  com.Kenta.PhenotypeTableEntry
