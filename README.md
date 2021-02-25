@@ -12,7 +12,8 @@ Implements the SPIAT threshold method for multiplexed immunohistochemistry marke
 6. You can save and apply the classifiers and also save the displayed statistics as a csv file. 
 
 ## References
-SPIAT: https://www.biorxiv.org/content/10.1101/2020.05.28.122614v1
+SPIAT: https://www.biorxiv.org/content/10.1101/2020.05.28.122614v1  
+Nina Tubau's phenotype method: https://github.com/ninatubau/QuPath_scripts/blob/main/scripts/gui_phenotype_add_col.groovy  
 
 ## Potential bugs:
 - NullPointer exception when new project is opened. Please ignore
