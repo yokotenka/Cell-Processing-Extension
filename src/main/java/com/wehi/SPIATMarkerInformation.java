@@ -1,4 +1,4 @@
-package com.Kenta;
+package com.wehi;
 import javafx.scene.chart.XYChart.Series;
 
 /**

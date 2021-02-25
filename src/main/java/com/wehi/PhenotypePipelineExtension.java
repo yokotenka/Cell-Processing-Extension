@@ -1,4 +1,4 @@
-package com.Kenta;
+package com.wehi;
 
 import org.controlsfx.control.action.Action;
 import qupath.lib.gui.ActionTools;
@@ -9,14 +9,14 @@ import qupath.lib.gui.tools.MenuTools;
 /**
  * QuPath extension for SPIAT Threshold
  */
-public class SPIATThresholdExtension implements QuPathExtension {
+public class PhenotypePipelineExtension implements QuPathExtension {
 
     @Override
     public void installExtension(QuPathGUI quPathGUI) {
         Action spiatThresholdAction = ActionTools.createAction(new ThresholdSPIATWindow(quPathGUI), "SPIAT Threshold");
 
         MenuTools.addMenuItems(
-                quPathGUI.getMenu("Extensions>Phenotype Pipeline", true),
+                quPathGUI.getMenu("Extensions>Phenotype Pipeline>Threshold", true),
                 spiatThresholdAction);
 
         Action phenotypeAction = ActionTools.createAction(new PhenotypeWindow(quPathGUI), "Phenotype");

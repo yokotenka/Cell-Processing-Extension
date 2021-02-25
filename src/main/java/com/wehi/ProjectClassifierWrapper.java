@@ -1,4 +1,4 @@
-package com.Kenta;
+package com.wehi;
 
 import qupath.lib.classifiers.object.ObjectClassifier;
 import qupath.lib.projects.Project;

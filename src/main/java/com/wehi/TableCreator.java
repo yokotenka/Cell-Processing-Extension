@@ -1,4 +1,4 @@
-package com.Kenta;
+package com.wehi;
 
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;

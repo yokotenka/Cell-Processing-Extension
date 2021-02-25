@@ -1,4 +1,4 @@
-package com.Kenta;
+package com.wehi;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
