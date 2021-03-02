@@ -20,7 +20,7 @@ NOTE: You must run a cell detection on the cells before you can run this pipelin
 3. Type the name of your phenotype.   
 4. Select a marker which is positive in that phenotype, and press the "+" button. If you want to add another marker, simply select another marker in the drag down box and press "+". If you want to remove a particular marker, select that marker in the drag down box and press "-".    
 5. Same applies for negative markers.   
-6. (Optional) You can save all your hard work of inputting the phenotypes by saving it. It will create a folder in your project directory and save it there. It is recommened that you save the options if you having images from the same experiment and are using the same markers.   
+6. (Optional) You can save all your hard work of inputting the phenotypes by saving it. It will create a folder in your project directory and save it there. It is recommened that you save the options if you have images from the same experiment and are using the same markers.   
 7. Run the phenotype decider.   
 8. (Optional) Can save the results table. Not much information other that the count and combination of markers.    
 
